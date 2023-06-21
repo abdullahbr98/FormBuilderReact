@@ -149,7 +149,7 @@ export default function FormTab({
                 borderWidth="1px"
                 mt="-2px"
             >
-                <FormControl isRequired={checkedRequired}>
+                <FormControl isRequired={checkedRequired} cursor="grab">
                     <Flex>
                         <Box alignSelf="center" px="10px">
                             <DragHandleIcon cursor="grab" />

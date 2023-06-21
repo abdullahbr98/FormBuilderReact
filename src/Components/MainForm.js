@@ -1,5 +1,5 @@
 import "../App.css";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import FormTab from "./FormTab";
 import {
@@ -19,17 +19,16 @@ import {
     MenuItem,
 } from "@chakra-ui/react";
 function MainForm() {
+    const dragItem = useRef();
+    const dragOverItem = useRef();
+    const [testArray, settestArray] = useState([1, 2, 3, 4, 5, 6]);
     const [formTabsArray, setFormTabsArray] = useState([
-        {
-            0: (
-                <FormTab
-                    displayItem="Primary Coach"
-                    key={420}
-                    keyValue={420}
-                    indexValue={0}
-                />
-            ),
-        },
+        <FormTab
+            displayItem="Primary Coach"
+            key={420}
+            keyValue={420}
+            indexValue={0}
+        />,
     ]);
     const [secondaryCoachingCheck, setSecondaryCoachingCheck] = useState(true);
     const [commitmentCheck, setCommitmentCheck] = useState(true);
@@ -72,61 +71,55 @@ function MainForm() {
         let i = Math.floor(Math.random() * 1045345341);
         if (value === "Secondary Coach" && secondaryCoachingCheck === true) {
             let x = [...formTabsArray];
-            let keyValue = indexValue;
-            x[indexValue] = {
-                [keyValue]: (
-                    <FormTab
-                        displayItem={value}
-                        formTabsArray={formTabsArray}
-                        indexValue={indexValue}
-                        key={i}
-                        createAccess={createAccess}
-                        setCreateAccess={setCreateAccess}
-                        formTabDeleter={formTabDeleter}
-                        keyValue={i}
-                    />
-                ),
-            };
+            let obj = (
+                <FormTab
+                    displayItem={value}
+                    indexValue={indexValue}
+                    formTabsArray={formTabsArray}
+                    // key={i}
+                    createAccess={createAccess}
+                    setCreateAccess={setCreateAccess}
+                    formTabDeleter={formTabDeleter}
+                    keyValue={i}
+                />
+            );
+            x.push(obj);
             setIndexValue(indexValue + 1);
             setFormTabsArray(x);
             setSecondaryCoachingCheck(false);
         } else if (value === "Commitments" && commitmentCheck === true) {
             let x = [...formTabsArray];
-            let keyValue = indexValue;
-            x[indexValue] = {
-                [keyValue]: (
-                    <FormTab
-                        displayItem={value}
-                        indexValue={indexValue}
-                        formTabsArray={formTabsArray}
-                        key={i}
-                        createAccess={createAccess}
-                        setCreateAccess={setCreateAccess}
-                        formTabDeleter={formTabDeleter}
-                        keyValue={i}
-                    />
-                ),
-            };
+            let obj = (
+                <FormTab
+                    displayItem={value}
+                    indexValue={indexValue}
+                    formTabsArray={formTabsArray}
+                    // key={i}
+                    createAccess={createAccess}
+                    setCreateAccess={setCreateAccess}
+                    formTabDeleter={formTabDeleter}
+                    keyValue={i}
+                />
+            );
+            x.push(obj);
             setIndexValue(indexValue + 1);
             setFormTabsArray(x);
             setCommitmentCheck(false);
         } else if (value === "Follow Up Date" && followUpDateCheck === true) {
             let x = [...formTabsArray];
-            let keyValue = indexValue;
-            x[indexValue] = {
-                [keyValue]: (
-                    <FormTab
-                        displayItem={value}
-                        indexValue={indexValue}
-                        formTabsArray={formTabsArray}
-                        key={i}
-                        createAccess={createAccess}
-                        setCreateAccess={setCreateAccess}
-                        formTabDeleter={formTabDeleter}
-                        keyValue={i}
-                    />
-                ),
-            };
+            let obj = (
+                <FormTab
+                    displayItem={value}
+                    indexValue={indexValue}
+                    formTabsArray={formTabsArray}
+                    // key={i}
+                    createAccess={createAccess}
+                    setCreateAccess={setCreateAccess}
+                    formTabDeleter={formTabDeleter}
+                    keyValue={i}
+                />
+            );
+            x.push(obj);
             setIndexValue(indexValue + 1);
             setFormTabsArray(x);
             setFollowUpDateCheck(false);
@@ -136,21 +129,19 @@ function MainForm() {
             value !== "Secondary Coach"
         ) {
             let x = [...formTabsArray];
-            let keyValue = indexValue;
-            x[indexValue] = {
-                [keyValue]: (
-                    <FormTab
-                        displayItem={value}
-                        indexValue={indexValue}
-                        formTabsArray={formTabsArray}
-                        key={i}
-                        createAccess={createAccess}
-                        setCreateAccess={setCreateAccess}
-                        formTabDeleter={formTabDeleter}
-                        keyValue={i}
-                    />
-                ),
-            };
+            let obj = (
+                <FormTab
+                    displayItem={value}
+                    indexValue={indexValue}
+                    formTabsArray={formTabsArray}
+                    // key={i}
+                    createAccess={createAccess}
+                    setCreateAccess={setCreateAccess}
+                    formTabDeleter={formTabDeleter}
+                    keyValue={i}
+                />
+            );
+            x.push(obj);
             setIndexValue(indexValue + 1);
             setFormTabsArray(x);
         }
@@ -167,10 +158,28 @@ function MainForm() {
             console.log(indexValue);
         }
     };
+    const dragStart = (e, position) => {
+        dragItem.current = position;
+        console.log(e.target.innerHTML);
+    };
+
+    const dragEnter = (e, position) => {
+        dragOverItem.current = position;
+        console.log(e.target.innerHTML);
+    };
+    const drop = (e) => {
+        const copyListItems = [...formTabsArray];
+        const dragItemContent = copyListItems[dragItem.current];
+        copyListItems.splice(dragItem.current, 1);
+        copyListItems.splice(dragOverItem.current, 0, dragItemContent);
+        dragItem.current = null;
+        dragOverItem.current = null;
+        setFormTabsArray(copyListItems);
+    };
 
     useEffect(() => {
         console.log("in UseEffect of main:", formTabsArray);
-    }, [formTabsArray, populatedGroupList, allChecked]);
+    }, [formTabsArray, populatedGroupList, allChecked, testArray]);
     return (
         <Box textAlign="center" w="100%" my="50px">
             <Box id="mainContainer">
@@ -410,7 +419,23 @@ function MainForm() {
             <Box id="main-div">
                 {formTabsArray
                     ? formTabsArray.map((components, index) => {
-                          return components[index];
+                          return (
+                              <div
+                                  //   style={{
+                                  //       backgroundColor: "lightblue",
+                                  //       margin: "20px 25%",
+                                  //       textAlign: "center",
+                                  //       fontSize: "40px",
+                                  //   }}
+                                  onDragStart={(e) => dragStart(e, index)}
+                                  onDragEnter={(e) => dragEnter(e, index)}
+                                  onDragEnd={drop}
+                                  key={index}
+                                  draggable
+                              >
+                                  {components}
+                              </div>
+                          );
                       })
                     : console.log("not exist")}
             </Box>
