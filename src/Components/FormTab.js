@@ -30,9 +30,10 @@ export default function FormTab({
     displayItem,
     createAccess,
     setCreateAccess,
+    formTabsArray,
     keyValue,
     formTabDeleter,
-    indexValue
+    indexValue,
 }) {
     const [description, setDescription] = useState("default description");
     const [note, setNote] = useState("default note");
@@ -52,6 +53,7 @@ export default function FormTab({
     const [commitmentArray, setcommitmentArray] = useState([]);
     useEffect(() => {
         console.log(indexValue);
+        console.log("inside tab:",formTabsArray);
         if (createAccess) {
             onOpen();
         }
@@ -90,8 +92,10 @@ export default function FormTab({
     }, [
         note,
         description,
-        // commitmentArray,
         disableButton,
+        indexValue,
+        formTabDeleter,
+        formTabsArray,
         errorDesc,
         notesError,
         displayItem,
@@ -326,7 +330,17 @@ export default function FormTab({
                                 </MenuButton>
                                 <MenuList>
                                     <MenuItem onClick={onOpen}>Edit</MenuItem>
-                                    <MenuItem onClick={()=>{formTabDeleter(keyValue,displayItem,indexValue)}}>Delete</MenuItem>
+                                    <MenuItem
+                                        onClick={() => {
+                                            formTabDeleter(
+                                                keyValue,
+                                                displayItem,
+                                                indexValue
+                                            );
+                                        }}
+                                    >
+                                        Delete
+                                    </MenuItem>
                                 </MenuList>
                             </Menu>
                         </Flex>

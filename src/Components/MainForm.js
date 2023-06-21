@@ -20,12 +20,16 @@ import {
 } from "@chakra-ui/react";
 function MainForm() {
     const [formTabsArray, setFormTabsArray] = useState([
-        <FormTab
-            displayItem="Primary Coach"
-            key={420}
-            keyValue={420}
-            indexValue={0}
-        />,
+        {
+            0: (
+                <FormTab
+                    displayItem="Primary Coach"
+                    key={420}
+                    keyValue={420}
+                    indexValue={0}
+                />
+            ),
+        },
     ]);
     const [secondaryCoachingCheck, setSecondaryCoachingCheck] = useState(true);
     const [commitmentCheck, setCommitmentCheck] = useState(true);
@@ -68,49 +72,61 @@ function MainForm() {
         let i = Math.floor(Math.random() * 1045345341);
         if (value === "Secondary Coach" && secondaryCoachingCheck === true) {
             let x = [...formTabsArray];
-            x.push(
-                <FormTab
-                    displayItem={value}
-                    indexValue={indexValue}
-                    key={i}
-                    createAccess={createAccess}
-                    setCreateAccess={setCreateAccess}
-                    formTabDeleter={formTabDeleter}
-                    keyValue={i}
-                />
-            );
+            let keyValue = indexValue;
+            x[indexValue] = {
+                [keyValue]: (
+                    <FormTab
+                        displayItem={value}
+                        formTabsArray={formTabsArray}
+                        indexValue={indexValue}
+                        key={i}
+                        createAccess={createAccess}
+                        setCreateAccess={setCreateAccess}
+                        formTabDeleter={formTabDeleter}
+                        keyValue={i}
+                    />
+                ),
+            };
             setIndexValue(indexValue + 1);
             setFormTabsArray(x);
             setSecondaryCoachingCheck(false);
         } else if (value === "Commitments" && commitmentCheck === true) {
             let x = [...formTabsArray];
-            x.push(
-                <FormTab
-                    displayItem={value}
-                    createAccess={createAccess}
-                    setCreateAccess={setCreateAccess}
-                    formTabDeleter={formTabDeleter}
-                    indexValue={indexValue}
-                    key={i}
-                    keyValue={i}
-                />
-            );
+            let keyValue = indexValue;
+            x[indexValue] = {
+                [keyValue]: (
+                    <FormTab
+                        displayItem={value}
+                        indexValue={indexValue}
+                        formTabsArray={formTabsArray}
+                        key={i}
+                        createAccess={createAccess}
+                        setCreateAccess={setCreateAccess}
+                        formTabDeleter={formTabDeleter}
+                        keyValue={i}
+                    />
+                ),
+            };
             setIndexValue(indexValue + 1);
             setFormTabsArray(x);
             setCommitmentCheck(false);
         } else if (value === "Follow Up Date" && followUpDateCheck === true) {
             let x = [...formTabsArray];
-            x.push(
-                <FormTab
-                    displayItem={value}
-                    createAccess={createAccess}
-                    setCreateAccess={setCreateAccess}
-                    formTabDeleter={formTabDeleter}
-                    indexValue={indexValue}
-                    key={i}
-                    keyValue={i}
-                />
-            );
+            let keyValue = indexValue;
+            x[indexValue] = {
+                [keyValue]: (
+                    <FormTab
+                        displayItem={value}
+                        indexValue={indexValue}
+                        formTabsArray={formTabsArray}
+                        key={i}
+                        createAccess={createAccess}
+                        setCreateAccess={setCreateAccess}
+                        formTabDeleter={formTabDeleter}
+                        keyValue={i}
+                    />
+                ),
+            };
             setIndexValue(indexValue + 1);
             setFormTabsArray(x);
             setFollowUpDateCheck(false);
@@ -120,35 +136,40 @@ function MainForm() {
             value !== "Secondary Coach"
         ) {
             let x = [...formTabsArray];
-            x.push(
-                <FormTab
-                    displayItem={value}
-                    key={i}
-                    keyValue={i}
-                    indexValue={indexValue}
-                    createAccess={createAccess}
-                    setCreateAccess={setCreateAccess}
-                    formTabDeleter={formTabDeleter}
-                />
-            );
+            let keyValue = indexValue;
+            x[indexValue] = {
+                [keyValue]: (
+                    <FormTab
+                        displayItem={value}
+                        indexValue={indexValue}
+                        formTabsArray={formTabsArray}
+                        key={i}
+                        createAccess={createAccess}
+                        setCreateAccess={setCreateAccess}
+                        formTabDeleter={formTabDeleter}
+                        keyValue={i}
+                    />
+                ),
+            };
             setIndexValue(indexValue + 1);
             setFormTabsArray(x);
         }
     };
-
     const formTabDeleter = (keyIdentifier, displayValue, indexValue) => {
         if (formTabsArray) {
-            let x = [...formTabsArray];
-            // x.splice(indexValue, 1);
-            // setFormTabsArray(x);
-            x.map((component, index) => {
-                return console.log(`index ${index}:+`, component);
-            });
+            console.log("formTabsDeleteFunc:", formTabsArray);
+            // let x = [...formTabsArray];
+            // // x.splice(indexValue, 1);
+            // // setFormTabsArray(x);
+            // x.map((component) => {
+            //     return console.log(component);
+            // });
+            console.log(indexValue);
         }
     };
 
     useEffect(() => {
-        console.log("checked:", allChecked);
+        console.log("in UseEffect of main:", formTabsArray);
     }, [formTabsArray, populatedGroupList, allChecked]);
     return (
         <Box textAlign="center" w="100%" my="50px">
@@ -386,11 +407,14 @@ function MainForm() {
                     </Flex>
                 </Box>
             </Box>
-            <Box id="otherDivs">
-                {formTabsArray ? formTabsArray : console.log("not exist")}
+            <Box id="main-div">
+                {formTabsArray
+                    ? formTabsArray.map((components, index) => {
+                          return components[index];
+                      })
+                    : console.log("not exist")}
             </Box>
         </Box>
     );
 }
-
 export default MainForm;
