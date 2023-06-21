@@ -26,27 +26,39 @@ import {
     MenuList,
     MenuItem,
 } from "@chakra-ui/react";
-export default function FormTab({ displayItem }) {
+export default function FormTab({
+    displayItem,
+    createAccess,
+    setCreateAccess,
+    keyValue,
+    formTabDeleter,
+    indexValue
+}) {
     const [description, setDescription] = useState("default description");
     const [note, setNote] = useState("default note");
     const [descriptionOriginal, setDescriptionOriginal] = useState(
         "Description Original"
     );
+    const { isOpen, onOpen, onClose } = useDisclosure();
     const [noteOriginal, setNoteOriginal] = useState("Note Original");
     const [showNote, setShowNote] = useState("none");
     const [showNoteOriginal, setShowNoteOriginal] = useState("block");
     const [errorDesc, setErrorDesc] = useState(false);
     const [notesError, setNotesError] = useState(false);
     const [disableButton, setdisableButton] = useState(false);
-    const [checkedRequired, setCheckedRequired] = useState(false);
+    const [checkedRequired, setCheckedRequired] = useState(true);
     const [noOfCommits, setnoOfCommits] = useState(0);
     const [showCommitDates, setshowCommitDates] = useState(true);
     const [commitmentArray, setcommitmentArray] = useState([]);
     useEffect(() => {
+        console.log(indexValue);
+        if (createAccess) {
+            onOpen();
+        }
         let x = [];
         for (let i = 0; i < noOfCommits; i++) {
             x.push(
-                <Flex justifyContent="space-between">
+                <Flex justifyContent="space-between" key={i}>
                     <Box w="90%" p={3}>
                         <Flex>
                             <Text alignSelf="center" pe={5}>
@@ -85,6 +97,8 @@ export default function FormTab({ displayItem }) {
         displayItem,
         noOfCommits,
         showCommitDates,
+        createAccess,
+        onOpen,
     ]);
     const updateFormValues = (callbackFunc) => {
         if (!notesError && !errorDesc) {
@@ -97,7 +111,6 @@ export default function FormTab({ displayItem }) {
         }
     };
 
-    const { isOpen, onOpen, onClose } = useDisclosure();
     return (
         <>
             {/* MODAL PRIMARY COACH */}
@@ -119,6 +132,8 @@ export default function FormTab({ displayItem }) {
                 setnoOfCommits={setnoOfCommits}
                 setshowCommitDates={setshowCommitDates}
                 showCommitDates={showCommitDates}
+                createAccess={createAccess}
+                setCreateAccess={setCreateAccess}
             />
             {/* MODAL PRIMARY COACH */}
             <Box
@@ -133,7 +148,7 @@ export default function FormTab({ displayItem }) {
                 <FormControl isRequired={checkedRequired}>
                     <Flex>
                         <Box alignSelf="center" px="10px">
-                            <DragHandleIcon cursor="pointer" />
+                            <DragHandleIcon cursor="grab" />
                         </Box>
                         <Box w="100%">
                             {displayItem === "Primary Coach" ||
@@ -188,13 +203,13 @@ export default function FormTab({ displayItem }) {
                                 <>
                                     <Flex justifyContent="left">
                                         <Box w="85%" p={3}>
-                                            <Text
+                                            <FormLabel
                                                 mb="8px"
                                                 color="#3f536e"
                                                 fontWeight={500}
                                             >
                                                 Commitment Description
-                                            </Text>
+                                            </FormLabel>
                                         </Box>
                                         <Box
                                             alignSelf="center"
@@ -220,13 +235,13 @@ export default function FormTab({ displayItem }) {
                             {displayItem === "Follow Up Date" ? (
                                 <Flex>
                                     <Box w="35%" p={3}>
-                                        <Text
+                                        <FormLabel
                                             mb="8px"
                                             color="#3f536e"
                                             fontWeight={500}
                                         >
                                             Follow Up Date Description
-                                        </Text>
+                                        </FormLabel>
                                         <Input
                                             disabled
                                             placeholder="Select Date"
@@ -265,11 +280,31 @@ export default function FormTab({ displayItem }) {
                                 </Flex>
                             ) : null}
                             <Box mt={2} p={3} display={showNoteOriginal}>
-                                <Text mb="8px" color="#3f536e" fontWeight={500}>
-                                    {noteOriginal}
-                                </Text>
+                                {displayItem === "Small Notes" ||
+                                displayItem === "Large Notes" ? (
+                                    <FormLabel
+                                        mb="8px"
+                                        color="#3f536e"
+                                        fontWeight={500}
+                                    >
+                                        {noteOriginal}
+                                    </FormLabel>
+                                ) : (
+                                    <Text
+                                        mb="8px"
+                                        color="#3f536e"
+                                        fontWeight={500}
+                                    >
+                                        {noteOriginal}
+                                    </Text>
+                                )}
                                 <Textarea
                                     placeholder="Enter Notes"
+                                    maxH={
+                                        displayItem === "Small Notes"
+                                            ? "150px"
+                                            : "auto"
+                                    }
                                     size="md"
                                     py="20px"
                                     borderRadius="6px"
@@ -291,7 +326,7 @@ export default function FormTab({ displayItem }) {
                                 </MenuButton>
                                 <MenuList>
                                     <MenuItem onClick={onOpen}>Edit</MenuItem>
-                                    <MenuItem>Delete</MenuItem>
+                                    <MenuItem onClick={()=>{formTabDeleter(keyValue,displayItem,indexValue)}}>Delete</MenuItem>
                                 </MenuList>
                             </Menu>
                         </Flex>
