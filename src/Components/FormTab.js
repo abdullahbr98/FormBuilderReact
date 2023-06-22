@@ -30,10 +30,14 @@ export default function FormTab({
     displayItem,
     createAccess,
     setCreateAccess,
+    giveNoDeleteAccess,
+    sortIndex,
     formTabsArray,
     keyValue,
     formTabDeleter,
     indexValue,
+    showObject,
+    setShowObject,
 }) {
     const [description, setDescription] = useState("default description");
     const [note, setNote] = useState("default note");
@@ -42,20 +46,20 @@ export default function FormTab({
     );
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [noteOriginal, setNoteOriginal] = useState("Note Original");
-    const [showNote, setShowNote] = useState("none");
+    const [showNote, setShowNote] = useState("block");
     const [showNoteOriginal, setShowNoteOriginal] = useState("block");
     const [errorDesc, setErrorDesc] = useState(false);
     const [notesError, setNotesError] = useState(false);
     const [disableButton, setdisableButton] = useState(false);
     const [checkedRequired, setCheckedRequired] = useState(true);
-    const [noOfCommits, setnoOfCommits] = useState(0);
+    const [noOfCommits, setnoOfCommits] = useState(1);
     const [showCommitDates, setshowCommitDates] = useState(true);
     const [commitmentArray, setcommitmentArray] = useState([]);
+    const [createAccessChecker, setcreateAccessChecker] = useState(0);
     useEffect(() => {
-        console.log(indexValue);
-        console.log("inside tab:",formTabsArray);
-        if (createAccess) {
+        if (createAccess && createAccessChecker === 0) {
             onOpen();
+            setcreateAccessChecker(1);
         }
         let x = [];
         for (let i = 0; i < noOfCommits; i++) {
@@ -86,11 +90,33 @@ export default function FormTab({
         errorDesc || notesError
             ? setdisableButton(true)
             : setdisableButton(false);
-        displayItem === "smallNotes" || displayItem === "largeNotes"
+        displayItem === "Small Notes" || displayItem === "Large Notes"
             ? setShowNote(true)
             : setShowNote(false);
+        const obj = {
+            ...(displayItem === "Commitments"
+                ? { commitmentsCount: noOfCommits }
+                : {}),
+            description:
+                displayItem === "Small Notes" || displayItem === "Large Notes"
+                    ? noteOriginal
+                    : descriptionOriginal,
+            required: checkedRequired,
+            id: keyValue,
+            type: displayItem,
+            sortIndex: sortIndex,
+            isNotesSectionAdded: showNote === "none" ? false : true,
+        };
+        if (showObject) {
+            console.log(obj);
+            setShowObject(false);
+        }
     }, [
         note,
+        noteOriginal,
+        descriptionOriginal,
+        checkedRequired,
+        keyValue,
         description,
         disableButton,
         indexValue,
@@ -102,9 +128,15 @@ export default function FormTab({
         noOfCommits,
         showCommitDates,
         createAccess,
+        createAccessChecker,
         onOpen,
+        showObject,
+        setShowObject,
+        sortIndex,
+        showNote,
     ]);
     const updateFormValues = (callbackFunc) => {
+        //TODO show form values  in console.
         if (!notesError && !errorDesc) {
             setNoteOriginal(note);
             setDescriptionOriginal(description);
@@ -149,7 +181,11 @@ export default function FormTab({
                 borderWidth="1px"
                 mt="-2px"
             >
-                <FormControl isRequired={checkedRequired} cursor="grab">
+                <FormControl
+                    isRequired={checkedRequired}
+                    cursor="grab"
+                    id="main-form"
+                >
                     <Flex>
                         <Box alignSelf="center" px="10px">
                             <DragHandleIcon cursor="grab" />
@@ -330,17 +366,19 @@ export default function FormTab({
                                 </MenuButton>
                                 <MenuList>
                                     <MenuItem onClick={onOpen}>Edit</MenuItem>
-                                    <MenuItem
-                                        onClick={() => {
-                                            formTabDeleter(
-                                                keyValue,
-                                                displayItem,
-                                                indexValue
-                                            );
-                                        }}
-                                    >
-                                        Delete
-                                    </MenuItem>
+                                    {giveNoDeleteAccess ? null : (
+                                        <MenuItem
+                                            onClick={() => {
+                                                formTabDeleter(
+                                                    keyValue,
+                                                    displayItem,
+                                                    sortIndex
+                                                );
+                                            }}
+                                        >
+                                            Delete
+                                        </MenuItem>
+                                    )}
                                 </MenuList>
                             </Menu>
                         </Flex>
