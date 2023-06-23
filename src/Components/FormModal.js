@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import {
     Modal,
@@ -27,9 +27,14 @@ import {
     MenuItem,
 } from "@chakra-ui/react";
 export default function FormModal({
+    setCreateAccess,
+    createAccess,
     isOpen,
     onClose,
     displayItem,
+    formTabsArray,
+    setFormTabsArray,
+    descriptionOriginal,
     description,
     setDescription,
     errorDesc,
@@ -44,7 +49,25 @@ export default function FormModal({
     setshowCommitDates,
     showCommitDates,
     setnoOfCommits,
+    showCommitDatesOriginal,
+    setshowCommitDatesOriginal,
 }) {
+    const [createAccessModifier, setcreateAccessModifier] = useState(0);
+    const cancelFunction = (callbackFunc) => {
+        if (createAccess || createAccessModifier === 0) {
+            let arrayValue = [...formTabsArray];
+            if (
+                arrayValue[arrayValue.length - 1]["displayItem"] === displayItem
+            ) {
+                arrayValue.pop();
+                setFormTabsArray(arrayValue);
+                console.log("cancelled");
+            }
+            setcreateAccessModifier(1);
+        }
+        callbackFunc();
+    };
+
     return (
         <>
             <Modal isOpen={isOpen} onClose={onClose}>
@@ -52,7 +75,11 @@ export default function FormModal({
                 <ModalContent textAlign="left">
                     <ModalHeader>Edit {displayItem} </ModalHeader>
                     <hr />
-                    <ModalCloseButton />
+                    <ModalCloseButton
+                        onClick={() => {
+                            cancelFunction(onClose);
+                        }}
+                    />
                     <ModalBody>
                         <FormControl id="primaryCoachForm">
                             {displayItem !== "Small Notes" &&
@@ -110,7 +137,6 @@ export default function FormModal({
                                             setshowCommitDates(
                                                 e.target.checked
                                             );
-                                            console.log(showCommitDates);
                                         }}
                                         mt={3}
                                         color="gray"
@@ -120,39 +146,46 @@ export default function FormModal({
                                     </Checkbox>
                                 </Box>
                             ) : null}
-                            <Text fontWeight="bold" color="gray" mt={3}>
-                                Notes Selection
-                            </Text>
-                            <Menu>
-                                <MenuButton
-                                    w="100%"
-                                    as={Button}
-                                    rightIcon={<ChevronDownIcon />}
-                                    bg="white"
-                                    borderRadius="md"
-                                    borderWidth="1px"
-                                    textAlign="start"
-                                    color="gray"
-                                >
-                                    Notes Selection
-                                </MenuButton>
-                                <MenuList>
-                                    <MenuItem
-                                        onClick={() => {
-                                            setShowNote("block");
-                                        }}
-                                    >
-                                        Yes
-                                    </MenuItem>
-                                    <MenuItem
-                                        onClick={() => {
-                                            setShowNote("none");
-                                        }}
-                                    >
-                                        No
-                                    </MenuItem>
-                                </MenuList>
-                            </Menu>
+
+                            {displayItem !== "Small Notes" &&
+                            displayItem !== "Large Notes" ? (
+                                <div display="hidden">
+                                    <Text fontWeight="bold" color="gray" mt={3}>
+                                        Notes Selection
+                                    </Text>
+
+                                    <Menu>
+                                        <MenuButton
+                                            w="100%"
+                                            as={Button}
+                                            rightIcon={<ChevronDownIcon />}
+                                            bg="white"
+                                            borderRadius="md"
+                                            borderWidth="1px"
+                                            textAlign="start"
+                                            color="gray"
+                                        >
+                                            Notes Selection
+                                        </MenuButton>
+                                        <MenuList>
+                                            <MenuItem
+                                                onClick={() => {
+                                                    setShowNote("block");
+                                                }}
+                                            >
+                                                Yes
+                                            </MenuItem>
+                                            <MenuItem
+                                                onClick={() => {
+                                                    setShowNote("none");
+                                                }}
+                                            >
+                                                No
+                                            </MenuItem>
+                                        </MenuList>
+                                    </Menu>
+                                </div>
+                            ) : null}
                             <Box display={showNote}>
                                 <Text fontWeight="bold" color="gray" mt={3}>
                                     Notes Instruction
@@ -193,7 +226,12 @@ export default function FormModal({
 
                     <ModalFooter>
                         <Flex justifyContent="space-between" w="100%">
-                            <Button variant="ghost" onClick={onClose}>
+                            <Button
+                                variant="ghost"
+                                onClick={() => {
+                                    cancelFunction(onClose);
+                                }}
+                            >
                                 Cancel
                             </Button>
                             <Button

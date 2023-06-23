@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from "react";
-
 import "../App.css";
-// import $ from "jquery";
-// import "jquery-validation";
 import { ChevronDownIcon, DragHandleIcon } from "@chakra-ui/icons";
 import FormModal from "./FormModal";
 import { AiOutlineMore } from "react-icons/ai";
@@ -31,6 +28,7 @@ export default function FormTab({
     createAccess,
     setCreateAccess,
     giveNoDeleteAccess,
+    setFormTabsArray,
     sortIndex,
     formTabsArray,
     keyValue,
@@ -52,9 +50,14 @@ export default function FormTab({
     const [notesError, setNotesError] = useState(false);
     const [disableButton, setdisableButton] = useState(false);
     const [checkedRequired, setCheckedRequired] = useState(true);
+    const [checkedRequiredOriginal, setcheckedRequiredOriginal] =
+        useState(true);
     const [noOfCommits, setnoOfCommits] = useState(1);
     const [showCommitDates, setshowCommitDates] = useState(true);
+    const [showCommitDatesOriginal, setshowCommitDatesOriginal] =
+        useState(true);
     const [commitmentArray, setcommitmentArray] = useState([]);
+    const [commitmentArrayOriginal, setCommitmentArrayOriginal] = useState([]);
     const [createAccessChecker, setcreateAccessChecker] = useState(0);
     useEffect(() => {
         if (createAccess && createAccessChecker === 0) {
@@ -101,7 +104,7 @@ export default function FormTab({
                 displayItem === "Small Notes" || displayItem === "Large Notes"
                     ? noteOriginal
                     : descriptionOriginal,
-            required: checkedRequired,
+            required: checkedRequiredOriginal,
             id: keyValue,
             type: displayItem,
             sortIndex: sortIndex,
@@ -111,6 +114,7 @@ export default function FormTab({
             console.log(obj);
             setShowObject(false);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         note,
         noteOriginal,
@@ -133,17 +137,24 @@ export default function FormTab({
         showObject,
         setShowObject,
         sortIndex,
-        showNote,
     ]);
+
     const updateFormValues = (callbackFunc) => {
         //TODO show form values  in console.
-        if (!notesError && !errorDesc) {
+        if ((!notesError && !errorDesc) || (!errorDesc && !showNote)) {
             setNoteOriginal(note);
             setDescriptionOriginal(description);
             setShowNoteOriginal(showNote);
+            setcheckedRequiredOriginal(checkedRequired);
             callbackFunc();
         } else {
             console.log("error man");
+        }
+        if (displayItem === "Commitments") {
+            let tempArray = [...commitmentArray];
+            setshowCommitDatesOriginal(showCommitDates);
+            setCommitmentArrayOriginal(tempArray);
+            setcheckedRequiredOriginal(checkedRequired);
         }
     };
 
@@ -151,9 +162,12 @@ export default function FormTab({
         <>
             {/* MODAL PRIMARY COACH */}
             <FormModal
+                formTabsArray={formTabsArray}
+                setFormTabsArray={setFormTabsArray}
                 isOpen={isOpen}
                 onClose={onClose}
                 displayItem={displayItem}
+                descriptionOriginal={descriptionOriginal}
                 description={description}
                 setDescription={setDescription}
                 errorDesc={errorDesc}
@@ -168,8 +182,12 @@ export default function FormTab({
                 setnoOfCommits={setnoOfCommits}
                 setshowCommitDates={setshowCommitDates}
                 showCommitDates={showCommitDates}
+                showCommitDatesOriginal={showCommitDatesOriginal}
+                setshowCommitDatesOriginal={setshowCommitDatesOriginal}
                 createAccess={createAccess}
                 setCreateAccess={setCreateAccess}
+                commitmentArrayOriginal={commitmentArrayOriginal}
+                setCommitmentArrayOriginal={setCommitmentArrayOriginal}
             />
             {/* MODAL PRIMARY COACH */}
             <Box
@@ -181,11 +199,7 @@ export default function FormTab({
                 borderWidth="1px"
                 mt="-2px"
             >
-                <FormControl
-                    isRequired={checkedRequired}
-                    cursor="grab"
-                    id="main-form"
-                >
+                <FormControl isRequired={checkedRequiredOriginal} cursor="grab">
                     <Flex>
                         <Box alignSelf="center" px="10px">
                             <DragHandleIcon cursor="grab" />
@@ -255,7 +269,7 @@ export default function FormTab({
                                             alignSelf="center"
                                             me={3}
                                             display={
-                                                showCommitDates
+                                                showCommitDatesOriginal
                                                     ? "block"
                                                     : "none"
                                             }
@@ -269,7 +283,7 @@ export default function FormTab({
                                             </Text>
                                         </Box>
                                     </Flex>
-                                    {commitmentArray}
+                                    {commitmentArrayOriginal}
                                 </>
                             ) : null}
                             {displayItem === "Follow Up Date" ? (

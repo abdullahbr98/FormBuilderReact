@@ -21,6 +21,7 @@ import {
 function MainForm() {
     const dragItem = useRef();
     const dragOverItem = useRef();
+    const [mainFormObject, setMainFormObject] = useState({});
     const [secondaryCoachingCheck, setSecondaryCoachingCheck] = useState(true);
     const [commitmentCheck, setCommitmentCheck] = useState(true);
     const [followUpDateCheck, setFollowUpDateCheck] = useState(true);
@@ -30,6 +31,11 @@ function MainForm() {
     const [populatedGroupList, setpopulatedGroupList] = useState([]);
     const [indexValue, setIndexValue] = useState(1);
     const [showObject, setShowObject] = useState(false);
+    const [mainName, setmainName] = useState("");
+    const [nameError, setNameError] = useState(false);
+    const [groupError, setgroupError] = useState(false);
+    const [mainDescription, setmainDescription] = useState("");
+    const [descriptionError, setdescriptionError] = useState(false);
     const [formTabsArray, setFormTabsArray] = useState([
         {
             showObject: showObject,
@@ -42,6 +48,35 @@ function MainForm() {
             giveNoDeleteAccess: true,
         },
     ]);
+
+    const submitMainForm = (callbackFunction) => {
+        mainDescription === ""
+            ? setdescriptionError(true)
+            : setdescriptionError(false);
+        mainName === "" ? setNameError(true) : setNameError(false);
+        populatedGroupList.length === 0
+            ? setgroupError(true)
+            : setgroupError(false);
+        callbackFunction();
+    };
+
+    const submitMainFormCallback = () => {
+        if (descriptionError || groupError || nameError) {
+            console.log("error incomplete fields");
+        } else {
+            if (
+                mainDescription !== "" &&
+                populatedGroupList.length !== 0 &&
+                mainName !== ""
+            ) {
+                console.log(mainFormObject);
+                setShowObject(true);
+            } else {
+                console.log("error incomplete fields");
+            }
+        }
+    };
+
     const groupListPopulator = (value, event) => {
         console.log(value);
         console.log(event);
@@ -67,6 +102,11 @@ function MainForm() {
                 arrayList.push(value);
                 setpopulatedGroupList(arrayList);
             }
+        }
+        if (populatedGroupList.length > 0) {
+            setgroupError(true);
+        } else {
+            setgroupError(false);
         }
     };
 
@@ -156,9 +196,6 @@ function MainForm() {
             let x = [...formTabsArray];
             x.splice(indexValue, 1);
             setFormTabsArray(x);
-            // x.map((component) => {
-            //     return console.log(component);
-            // });
             console.log(x);
         }
     };
@@ -178,16 +215,66 @@ function MainForm() {
         dragOverItem.current = null;
         setFormTabsArray(copyListItems);
     };
+    const checker = () => {
+        let flagSC = false;
+        let flagCM = false;
+        let flagFD = false;
+        for (let x of formTabsArray) {
+            if (x["displayItem"] === "Secondary Coach") {
+                setSecondaryCoachingCheck(false);
+                flagSC = true;
+            }
+            if (x["displayItem"] === "Commitments") {
+                setCommitmentCheck(false);
+                flagCM = true;
+            }
+            if (x["displayItem"] === "Follow Up Date") {
+                setFollowUpDateCheck(false);
+                flagFD = true;
+            }
+        }
+        if (!flagSC) {
+            setSecondaryCoachingCheck(true);
+        }
+        if (!flagCM) {
+            setCommitmentCheck(true);
+        }
+        if (!flagFD) {
+            setFollowUpDateCheck(true);
+        }
+    };
 
-    useEffect(() => {}, [
+    useEffect(() => {
+        const createDate = new Date();
+        const obj = {
+            FormName: mainName,
+            Description: mainDescription,
+            groupList: populatedGroupList,
+            id: Math.floor(Math.random() * 1045345341),
+            createdAt:
+                createDate.getFullYear() +
+                "/" +
+                createDate.getMonth() +
+                "/" +
+                createDate.getDate(),
+        };
+        setMainFormObject({ ...obj });
+        checker();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [
         formTabsArray,
         populatedGroupList,
         allChecked,
         showObject,
+        nameError,
+        descriptionError,
+        groupError,
+        mainName,
+        mainDescription,
     ]);
     return (
         <Box textAlign="center" w="100%" my="50px">
-            <Box id="mainContainer">
+            <Box>
                 <Wrap
                     justifyContent="right"
                     px="20px"
@@ -283,8 +370,7 @@ function MainForm() {
                     <Button
                         colorScheme="blue"
                         onClick={() => {
-                            setShowObject(true);
-                            console.log(formTabsArray);
+                            submitMainForm(submitMainFormCallback);
                         }}
                     >
                         Save Only
@@ -316,7 +402,25 @@ function MainForm() {
                                         size="md"
                                         py="20px"
                                         borderRadius="6px"
+                                        onChange={(e) => {
+                                            setmainName(e.target.value);
+                                            if (e.target.value !== "") {
+                                                setNameError(false);
+                                            } else {
+                                                setNameError(true);
+                                            }
+                                        }}
                                     />
+                                    {nameError ? (
+                                        <span
+                                            style={{
+                                                color: "red",
+                                                paddingLeft: "3px",
+                                            }}
+                                        >
+                                            Name is Required
+                                        </span>
+                                    ) : null}
                                 </Box>
                                 <Box w="50%" p={3}>
                                     <Text
@@ -339,6 +443,7 @@ function MainForm() {
                                             fontSize="md"
                                             fontWeight="thinner"
                                             py="20px"
+                                            overflow="hidden"
                                         >
                                             {populatedGroupList.length > 0
                                                 ? populatedGroupList.map(
@@ -356,6 +461,7 @@ function MainForm() {
                                                         groupListPopulator(
                                                             e.target.name
                                                         );
+                                                        console.log(e);
                                                     }}
                                                 >
                                                     Select All
@@ -400,6 +506,16 @@ function MainForm() {
                                             </CheckboxGroup>
                                         </MenuList>
                                     </Menu>
+                                    {groupError ? (
+                                        <span
+                                            style={{
+                                                color: "red",
+                                                paddingLeft: "5px",
+                                            }}
+                                        >
+                                            Group is Required
+                                        </span>
+                                    ) : null}
                                 </Box>
                             </Flex>
                             <Box mt={2} p={3}>
@@ -411,7 +527,25 @@ function MainForm() {
                                     size="md"
                                     py="20px"
                                     borderRadius="6px"
+                                    onChange={(e) => {
+                                        setmainDescription(e.target.value);
+                                        if (e.target.value !== "") {
+                                            setdescriptionError(false);
+                                        } else {
+                                            setdescriptionError(true);
+                                        }
+                                    }}
                                 />
+                                {descriptionError ? (
+                                    <span
+                                        style={{
+                                            color: "red",
+                                            paddingLeft: "3px",
+                                        }}
+                                    >
+                                        Description is Required
+                                    </span>
+                                ) : null}
                             </Box>
                         </Box>
                         <Box ms="20px" p="50px" w="50%">
@@ -434,7 +568,7 @@ function MainForm() {
                     </Flex>
                 </Box>
             </Box>
-            <Box id="main-div">
+            <Box>
                 {formTabsArray
                     ? formTabsArray.map((components, index) => {
                           return (
@@ -448,15 +582,16 @@ function MainForm() {
                                   <FormTab
                                       showObject={showObject}
                                       setShowObject={setShowObject}
-                                      key={index}
                                       sortIndex={index}
                                       displayItem={components["displayItem"]}
                                       indexValue={components["indexValue"]}
                                       formTabsArray={formTabsArray}
+                                      setFormTabsArray={setFormTabsArray}
                                       createAccess={components["createAccess"]}
                                       setCreateAccess={
                                           components["setCreateAccess"]
                                       }
+                                      key={index}
                                       formTabDeleter={formTabDeleter}
                                       keyValue={components["keyValue"]}
                                       giveNoDeleteAccess={
