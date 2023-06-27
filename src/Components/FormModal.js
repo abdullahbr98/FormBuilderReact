@@ -27,6 +27,7 @@ import {
     MenuItem,
 } from "@chakra-ui/react";
 export default function FormModal({
+    keyValue,
     setCreateAccess,
     createAccess,
     isOpen,
@@ -122,6 +123,11 @@ export default function FormModal({
                                             min={1}
                                             onChange={(e) => {
                                                 setnoOfCommits(e);
+                                                for (let x in formTabsArray) {
+                                                    if (formTabsArray[x]["keyValue"] === keyValue) {
+                                                        formTabsArray[x]["numberOfCommitments"] = e;
+                                                    }
+                                                }
                                             }}
                                         >
                                             <NumberInputField />
@@ -171,6 +177,17 @@ export default function FormModal({
                                             <MenuItem
                                                 onClick={() => {
                                                     setShowNote("block");
+                                                    for (let x in formTabsArray) {
+                                                        if (
+                                                            formTabsArray[x][
+                                                                "keyValue"
+                                                            ] === keyValue
+                                                        ) {
+                                                            formTabsArray[x][
+                                                                "showNote"
+                                                            ] = true;
+                                                        }
+                                                    }
                                                 }}
                                             >
                                                 Yes
@@ -178,6 +195,17 @@ export default function FormModal({
                                             <MenuItem
                                                 onClick={() => {
                                                     setShowNote("none");
+                                                    for (let x in formTabsArray) {
+                                                        if (
+                                                            formTabsArray[x][
+                                                                "keyValue"
+                                                            ] === keyValue
+                                                        ) {
+                                                            formTabsArray[x][
+                                                                "showNote"
+                                                            ] = false;
+                                                        }
+                                                    }
                                                 }}
                                             >
                                                 No

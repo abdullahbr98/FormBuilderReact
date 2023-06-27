@@ -19,6 +19,7 @@ import {
     MenuItem,
 } from "@chakra-ui/react";
 function MainForm() {
+    const [apiResponse, setApiResponse] = useState([]);
     const dragItem = useRef();
     const dragOverItem = useRef();
     const [mainFormObject, setMainFormObject] = useState({});
@@ -38,14 +39,18 @@ function MainForm() {
     const [descriptionError, setdescriptionError] = useState(false);
     const [formTabsArray, setFormTabsArray] = useState([
         {
-            showObject: showObject,
-            setShowObject: setShowObject,
             displayItem: "Primary Coach",
+            description: "Primary Coach Description",
             indexValue: 0,
             key: 0,
             keyValue: Math.floor(Math.random() * 1045345341),
+            numberOfCommitments: 0,
             createAccess: false,
             giveNoDeleteAccess: true,
+            showNote: true,
+            noteDescription: "notes instruction",
+            showObject: showObject,
+            setShowObject: setShowObject,
         },
     ]);
 
@@ -54,7 +59,7 @@ function MainForm() {
             ? setdescriptionError(true)
             : setdescriptionError(false);
         mainName === "" ? setNameError(true) : setNameError(false);
-        populatedGroupList.length === 0
+        populatedGroupList.length < 1
             ? setgroupError(true)
             : setgroupError(false);
         callbackFunction();
@@ -66,10 +71,10 @@ function MainForm() {
         } else {
             if (
                 mainDescription !== "" &&
-                populatedGroupList.length !== 0 &&
+                populatedGroupList.length > 0 &&
                 mainName !== ""
             ) {
-                console.log(mainFormObject);
+                // console.log(mainFormObject); TODO
                 setShowObject(true);
             } else {
                 console.log("error incomplete fields");
@@ -103,11 +108,6 @@ function MainForm() {
                 setpopulatedGroupList(arrayList);
             }
         }
-        if (populatedGroupList.length > 0) {
-            setgroupError(true);
-        } else {
-            setgroupError(false);
-        }
     };
 
     const formTabAdder = (value) => {
@@ -115,16 +115,20 @@ function MainForm() {
         if (value === "Secondary Coach" && secondaryCoachingCheck === true) {
             let x = [...formTabsArray];
             let obj = {
-                showObject: showObject,
-                setShowObject: setShowObject,
+                description: "Edit secondary Coach Description",
                 displayItem: value,
                 indexValue: indexValue,
                 formTabsArray: formTabsArray,
+                numberOfCommitments: 0,
                 // key={i}
                 createAccess: createAccess,
                 setCreateAccess: setCreateAccess,
                 formTabDeleter: formTabDeleter,
                 keyValue: i,
+                showNote: true,
+                setShowObject: setShowObject,
+                noteDescription: "notes instruction",
+                showObject: showObject,
             };
 
             x.push(obj);
@@ -134,16 +138,20 @@ function MainForm() {
         } else if (value === "Commitments" && commitmentCheck === true) {
             let x = [...formTabsArray];
             let obj = {
-                showObject: showObject,
-                setShowObject: setShowObject,
+                description: "Edit commitment Description",
                 displayItem: value,
                 indexValue: indexValue,
                 formTabsArray: formTabsArray,
+                numberOfCommitments: 1,
                 // key={i}
                 createAccess: createAccess,
                 setCreateAccess: setCreateAccess,
                 formTabDeleter: formTabDeleter,
                 keyValue: i,
+                showNote: true,
+                noteDescription: "notes instruction",
+                showObject: showObject,
+                setShowObject: setShowObject,
             };
             x.push(obj);
             setIndexValue(indexValue + 1);
@@ -152,16 +160,20 @@ function MainForm() {
         } else if (value === "Follow Up Date" && followUpDateCheck === true) {
             let x = [...formTabsArray];
             let obj = {
-                showObject: showObject,
-                setShowObject: setShowObject,
+                description: "Edit follow up date description",
                 displayItem: value,
                 indexValue: indexValue,
                 formTabsArray: formTabsArray,
+                numberOfCommitments: 0,
                 // key={i}
                 createAccess: createAccess,
                 setCreateAccess: setCreateAccess,
                 formTabDeleter: formTabDeleter,
                 keyValue: i,
+                showNote: true,
+                noteDescription: "notes instruction",
+                showObject: showObject,
+                setShowObject: setShowObject,
             };
             x.push(obj);
             setIndexValue(indexValue + 1);
@@ -174,16 +186,20 @@ function MainForm() {
         ) {
             let x = [...formTabsArray];
             let obj = {
-                showObject: showObject,
-                setShowObject: setShowObject,
                 displayItem: value,
+                description: "Edit notes Description",
                 indexValue: indexValue,
                 formTabsArray: formTabsArray,
+                numberOfCommitments: 0,
                 // key={i}
                 createAccess: createAccess,
                 setCreateAccess: setCreateAccess,
                 formTabDeleter: formTabDeleter,
                 keyValue: i,
+                showNote: true,
+                noteDescription: "notes instruction",
+                showObject: showObject,
+                setShowObject: setShowObject,
             };
             x.push(obj);
             setIndexValue(indexValue + 1);
@@ -260,7 +276,7 @@ function MainForm() {
         };
         setMainFormObject({ ...obj });
         checker();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         formTabsArray,
         populatedGroupList,
@@ -272,6 +288,10 @@ function MainForm() {
         mainName,
         mainDescription,
     ]);
+    useEffect(() => {
+        console.log("apiResponse:", formTabsArray);
+    }, [formTabsArray]);
+
     return (
         <Box textAlign="center" w="100%" my="50px">
             <Box>
@@ -418,7 +438,7 @@ function MainForm() {
                                                 paddingLeft: "3px",
                                             }}
                                         >
-                                            Name is Required
+                                            This field is required.
                                         </span>
                                     ) : null}
                                 </Box>
@@ -491,9 +511,6 @@ function MainForm() {
                                                                                 .name,
                                                                             e
                                                                         );
-                                                                        console.log(
-                                                                            "worked"
-                                                                        );
                                                                     }}
                                                                 >
                                                                     Add Group{" "}
@@ -513,7 +530,7 @@ function MainForm() {
                                                 paddingLeft: "5px",
                                             }}
                                         >
-                                            Group is Required
+                                            This field is required.
                                         </span>
                                     ) : null}
                                 </Box>
@@ -543,7 +560,7 @@ function MainForm() {
                                             paddingLeft: "3px",
                                         }}
                                     >
-                                        Description is Required
+                                        This field is required.
                                     </span>
                                 ) : null}
                             </Box>
@@ -597,6 +614,9 @@ function MainForm() {
                                       giveNoDeleteAccess={
                                           components["giveNoDeleteAccess"]
                                       }
+                                      apiResponse={apiResponse}
+                                      setApiResponse={setApiResponse}
+                                      numberOfCommitments={components["numberOfCommitments"]}
                                   />
                               </div>
                           );
@@ -607,3 +627,133 @@ function MainForm() {
     );
 }
 export default MainForm;
+
+//how data will be shown
+// {
+//     "type": "primaryCoaching",
+//     "description": "Edit Primary Coaching Description",
+//     "isNotesSectionAdded": true,
+//     "isRequired": true,
+//     "notesInstruction": "notes instructions",
+//     "commitmentsCount": 1,
+//     "includeDueDate": false,
+//     "sortOrder": 1,
+//     "_id": "6495d0f6142ac513ac692076",
+//     "organization": "624ab8a176497e5d1eca9ba1",
+//     "coachingForm": "648c1913142ac513ac692048",
+//     "createdAt": "2023-06-23T17:05:58.243Z",
+//     "updatedAt": "2023-06-23T17:05:58.243Z",
+//     "__v": 0
+// },
+// {
+//     "type": "question",
+//     "description": "Question name ",
+//     "isNotesSectionAdded": true,
+//     "isRequired": true,
+//     "notesInstruction": "Note",
+//     "commitmentsCount": 1,
+//     "includeDueDate": false,
+//     "sortOrder": 2,
+//     "_id": "6495d0f6142ac513ac692077",
+//     "organization": "624ab8a176497e5d1eca9ba1",
+//     "coachingForm": "648c1913142ac513ac692048",
+//     "createdAt": "2023-06-23T17:05:58.243Z",
+//     "updatedAt": "2023-06-23T17:05:58.243Z",
+//     "__v": 0
+// },
+// {
+//     "type": "largeNote",
+//     "description": "large notes",
+//     "isNotesSectionAdded": false,
+//     "isRequired": true,
+//     "notesInstruction": "Provide detailed coaching feedback.",
+//     "commitmentsCount": 1,
+//     "includeDueDate": false,
+//     "sortOrder": 3,
+//     "_id": "6495d0f6142ac513ac692078",
+//     "organization": "624ab8a176497e5d1eca9ba1",
+//     "coachingForm": "648c1913142ac513ac692048",
+//     "createdAt": "2023-06-23T17:05:58.244Z",
+//     "updatedAt": "2023-06-23T17:05:58.244Z",
+//     "__v": 0
+// },
+// {
+//     "type": "commitment",
+//     "description": "commitment descriptions",
+//     "isNotesSectionAdded": true,
+//     "isRequired": true,
+//     "notesInstruction": "ins",
+//     "commitmentsCount": 11,
+//     "includeDueDate": true,
+//     "sortOrder": 4,
+//     "_id": "6495d0f6142ac513ac692079",
+//     "organization": "624ab8a176497e5d1eca9ba1",
+//     "coachingForm": "648c1913142ac513ac692048",
+//     "createdAt": "2023-06-23T17:05:58.244Z",
+//     "updatedAt": "2023-06-23T17:05:58.244Z",
+//     "__v": 0
+// },
+// {
+//     "type": "smallNote",
+//     "description": "Small notes",
+//     "isNotesSectionAdded": false,
+//     "isRequired": true,
+//     "notesInstruction": "Provide detailed coaching feedback.",
+//     "commitmentsCount": 1,
+//     "includeDueDate": false,
+//     "sortOrder": 5,
+//     "_id": "6495d0f6142ac513ac69207a",
+//     "organization": "624ab8a176497e5d1eca9ba1",
+//     "coachingForm": "648c1913142ac513ac692048",
+//     "createdAt": "2023-06-23T17:05:58.244Z",
+//     "updatedAt": "2023-06-23T17:05:58.244Z",
+//     "__v": 0
+// },
+// {
+//     "type": "secondaryCoaching",
+//     "description": "secondary coaching description",
+//     "isNotesSectionAdded": true,
+//     "isRequired": true,
+//     "notesInstruction": "Provide detailed coaching feedback.",
+//     "commitmentsCount": 1,
+//     "includeDueDate": false,
+//     "sortOrder": 6,
+//     "_id": "6495d0f6142ac513ac69207b",
+//     "organization": "624ab8a176497e5d1eca9ba1",
+//     "coachingForm": "648c1913142ac513ac692048",
+//     "createdAt": "2023-06-23T17:05:58.244Z",
+//     "updatedAt": "2023-06-23T17:05:58.244Z",
+//     "__v": 0
+// },
+// {
+//     "type": "attachment",
+//     "description": "attachment description",
+//     "isNotesSectionAdded": true,
+//     "isRequired": true,
+//     "notesInstruction": "hello",
+//     "commitmentsCount": 1,
+//     "includeDueDate": false,
+//     "sortOrder": 7,
+//     "_id": "6495d0f6142ac513ac69207c",
+//     "organization": "624ab8a176497e5d1eca9ba1",
+//     "coachingForm": "648c1913142ac513ac692048",
+//     "createdAt": "2023-06-23T17:05:58.244Z",
+//     "updatedAt": "2023-06-23T17:05:58.244Z",
+//     "__v": 0
+// },
+// {
+//     "type": "followUpDate",
+//     "description": "follow up date description",
+//     "isNotesSectionAdded": true,
+//     "isRequired": true,
+//     "notesInstruction": "Provide detailed coaching feedback.",
+//     "commitmentsCount": 1,
+//     "includeDueDate": false,
+//     "sortOrder": 8,
+//     "_id": "6495d0f6142ac513ac69207d",
+//     "organization": "624ab8a176497e5d1eca9ba1",
+//     "coachingForm": "648c1913142ac513ac692048",
+//     "createdAt": "2023-06-23T17:05:58.244Z",
+//     "updatedAt": "2023-06-23T17:05:58.244Z",
+//     "__v": 0
+// }

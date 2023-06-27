@@ -36,14 +36,17 @@ export default function FormTab({
     indexValue,
     showObject,
     setShowObject,
+    apiResponse,
+    setApiResponse,
 }) {
-    const [description, setDescription] = useState("default description");
-    const [note, setNote] = useState("default note");
-    const [descriptionOriginal, setDescriptionOriginal] = useState(
-        "Description Original"
-    );
+    const [description, setDescription] = useState("edit description");
+    const [note, setNote] = useState("edit note instruction");
+    const [descriptionOriginal, setDescriptionOriginal] =
+        useState("Description");
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [noteOriginal, setNoteOriginal] = useState("Note Original");
+    const [descriptionFromObject, setdescriptionFromObject] = useState("");
+    const [noteFromObject, setnoteFromObject] = useState("notes instruction");
     const [showNote, setShowNote] = useState("block");
     const [showNoteOriginal, setShowNoteOriginal] = useState("block");
     const [errorDesc, setErrorDesc] = useState(false);
@@ -64,29 +67,40 @@ export default function FormTab({
             onOpen();
             setcreateAccessChecker(1);
         }
-        let x = [];
-        for (let i = 0; i < noOfCommits; i++) {
-            x.push(
-                <Flex justifyContent="space-between" key={i}>
-                    <Box w="90%" p={3}>
-                        <Flex>
-                            <Text alignSelf="center" pe={5}>
-                                C{i + 1}
-                            </Text>
-                            <Input placeholder="Enter Commitment" disabled />
+        let y = [];
+        for (let x in formTabsArray) {
+            if (formTabsArray[x]["keyValue"] === keyValue) {
+                for (
+                    let i = 0;
+                    i < formTabsArray[x]["numberOfCommitments"];
+                    i++
+                ) {
+                    y.push(
+                        <Flex justifyContent="space-between" key={i}>
+                            <Box w="90%" p={3}>
+                                <Flex>
+                                    <Text alignSelf="center" pe={5}>
+                                        C{i + 1}
+                                    </Text>
+                                    <Input
+                                        placeholder="Enter Commitment"
+                                        disabled
+                                    />
+                                </Flex>
+                            </Box>
+                            <Box
+                                alignSelf="center"
+                                me={3}
+                                w="15%"
+                                display={showCommitDates ? "block" : "none"}
+                            >
+                                <Input placeholder="Select Date" disabled />
+                            </Box>
                         </Flex>
-                    </Box>
-                    <Box
-                        alignSelf="center"
-                        me={3}
-                        w="15%"
-                        display={showCommitDates ? "block" : "none"}
-                    >
-                        <Input placeholder="Select Date" disabled />
-                    </Box>
-                </Flex>
-            );
-            setcommitmentArray(x);
+                    );
+                    setcommitmentArray(y);
+                }
+            }
         }
         note === "" ? setNotesError(true) : setNotesError(false);
         description === "" ? setErrorDesc(true) : setErrorDesc(false);
@@ -102,8 +116,8 @@ export default function FormTab({
                 : {}),
             description:
                 displayItem === "Small Notes" || displayItem === "Large Notes"
-                    ? noteOriginal
-                    : descriptionOriginal,
+                    ? noteFromObject
+                    : descriptionFromObject,
             required: checkedRequiredOriginal,
             id: keyValue,
             type: displayItem,
@@ -111,11 +125,20 @@ export default function FormTab({
             isNotesSectionAdded: showNote === "none" ? false : true,
         };
         if (showObject) {
-            console.log(obj);
+            // console.log(obj);
+            setFormTabsArray([...formTabsArray]);
             setShowObject(false);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        for (let x in formTabsArray) {
+            if (formTabsArray[x]["keyValue"] === keyValue) {
+                setdescriptionFromObject(formTabsArray[x]["description"]);
+                setnoteFromObject(formTabsArray[x]["noteDescription"]);
+                formTabsArray[x]["sortedIndex"] = sortIndex;
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
+        descriptionFromObject,
         note,
         noteOriginal,
         descriptionOriginal,
@@ -137,6 +160,7 @@ export default function FormTab({
         showObject,
         setShowObject,
         sortIndex,
+        noteFromObject,
     ]);
 
     const updateFormValues = (callbackFunc) => {
@@ -146,13 +170,23 @@ export default function FormTab({
             setDescriptionOriginal(description);
             setShowNoteOriginal(showNote);
             setcheckedRequiredOriginal(checkedRequired);
+            for (let x in formTabsArray) {
+                if (formTabsArray[x]["keyValue"] === keyValue) {
+                    formTabsArray[x]["description"] = description;
+                    formTabsArray[x]["noteDescription"] = note;
+                    setnoteFromObject(formTabsArray[x]["noteDescription"]);
+                }
+            }
             callbackFunc();
-        } else {
-            console.log("error man");
         }
         if (displayItem === "Commitments") {
             let tempArray = [...commitmentArray];
             setshowCommitDatesOriginal(showCommitDates);
+            for (let x in formTabsArray) {
+                if (formTabsArray[x]["keyValue"] === keyValue) {
+                    formTabsArray[x]["numberOfCommitments"] = noOfCommits;
+                }
+            }
             setCommitmentArrayOriginal(tempArray);
             setcheckedRequiredOriginal(checkedRequired);
         }
@@ -188,6 +222,7 @@ export default function FormTab({
                 setCreateAccess={setCreateAccess}
                 commitmentArrayOriginal={commitmentArrayOriginal}
                 setCommitmentArrayOriginal={setCommitmentArrayOriginal}
+                keyValue={keyValue}
             />
             {/* MODAL PRIMARY COACH */}
             <Box
@@ -214,7 +249,9 @@ export default function FormTab({
                                             color="#3f536e"
                                             fontWeight={500}
                                         >
-                                            {descriptionOriginal}
+                                            {descriptionFromObject
+                                                ? descriptionFromObject
+                                                : descriptionOriginal}
                                         </FormLabel>
                                         <InputGroup>
                                             <Input
@@ -240,7 +277,9 @@ export default function FormTab({
                                             color="#3f536e"
                                             fontWeight={500}
                                         >
-                                            {descriptionOriginal}
+                                            {descriptionFromObject
+                                                ? descriptionFromObject
+                                                : descriptionOriginal}
                                         </FormLabel>
                                     </Box>
                                     <Box alignSelf="center" me={3}>
@@ -262,7 +301,9 @@ export default function FormTab({
                                                 color="#3f536e"
                                                 fontWeight={500}
                                             >
-                                                Commitment Description
+                                                {descriptionFromObject
+                                                    ? descriptionFromObject
+                                                    : descriptionOriginal}
                                             </FormLabel>
                                         </Box>
                                         <Box
@@ -283,7 +324,7 @@ export default function FormTab({
                                             </Text>
                                         </Box>
                                     </Flex>
-                                    {commitmentArrayOriginal}
+                                    {commitmentArray}
                                 </>
                             ) : null}
                             {displayItem === "Follow Up Date" ? (
@@ -294,7 +335,9 @@ export default function FormTab({
                                             color="#3f536e"
                                             fontWeight={500}
                                         >
-                                            Follow Up Date Description
+                                            {descriptionFromObject
+                                                ? descriptionFromObject
+                                                : descriptionOriginal}
                                         </FormLabel>
                                         <Input
                                             disabled
@@ -314,7 +357,9 @@ export default function FormTab({
                                             color="#3f536e"
                                             fontWeight={500}
                                         >
-                                            Attachment Description
+                                            {descriptionFromObject
+                                                ? descriptionFromObject
+                                                : descriptionOriginal}
                                         </FormLabel>
                                         <InputGroup>
                                             <Input
@@ -341,7 +386,7 @@ export default function FormTab({
                                         color="#3f536e"
                                         fontWeight={500}
                                     >
-                                        {noteOriginal}
+                                        {noteFromObject}
                                     </FormLabel>
                                 ) : (
                                     <Text
@@ -349,7 +394,7 @@ export default function FormTab({
                                         color="#3f536e"
                                         fontWeight={500}
                                     >
-                                        {noteOriginal}
+                                        {noteFromObject}
                                     </Text>
                                 )}
                                 <Textarea
