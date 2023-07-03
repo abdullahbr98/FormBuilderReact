@@ -58,7 +58,10 @@ export default function FormModal({
         if (createAccess || createAccessModifier === 0) {
             let arrayValue = [...formTabsArray];
             if (
-                arrayValue[arrayValue.length - 1]["displayItem"] === displayItem
+                arrayValue[arrayValue.length - 1]["displayItem"] ===
+                    displayItem &&
+                arrayValue[arrayValue.length - 1]["displayItem"] !==
+                    "Primary Coach"
             ) {
                 arrayValue.pop();
                 setFormTabsArray(arrayValue);
@@ -124,8 +127,14 @@ export default function FormModal({
                                             onChange={(e) => {
                                                 setnoOfCommits(e);
                                                 for (let x in formTabsArray) {
-                                                    if (formTabsArray[x]["keyValue"] === keyValue) {
-                                                        formTabsArray[x]["numberOfCommitments"] = e;
+                                                    if (
+                                                        formTabsArray[x][
+                                                            "keyValue"
+                                                        ] === keyValue
+                                                    ) {
+                                                        formTabsArray[x][
+                                                            "numberOfCommitments"
+                                                        ] = e;
                                                     }
                                                 }
                                             }}
